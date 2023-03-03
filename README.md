@@ -1,7 +1,7 @@
 # ccf-rank
 
 中国计算机学会推荐会议和期刊 
-[网页表格版](https://izhx.github.io/ccf-rank/), 使用 [AG Grid](https://www.ag-grid.com/) 组建展示。
+[网页表格版](https://izhx.github.io/ccf-rank/), 使用 [AG Grid](https://www.ag-grid.com/) 组件展示。
 
 beta版本，逐步完善中...
 
