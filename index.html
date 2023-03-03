@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="zh">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>中国计算机学会推荐国际学术会议和期刊目录</title>
+    <!-- Include the JS for AG Grid -->
+    <script src="https://cdn.jsdelivr.net/npm/ag-grid-community/dist/ag-grid-community.min.noStyle.js"></script>
+    <!-- Include the core CSS, this is needed by the grid -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ag-grid-community/styles/ag-grid.css"/>
+    <!-- Include the theme CSS, only need to import the theme you are going to use -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ag-grid-community/styles/ag-theme-balham.css"/>
+
+    <!-- <script src="https://unpkg.com/papaparse@5.4.0/papaparse.min.js"></script> -->
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.0/papaparse.min.js"></script>
+
+    <style>
+
+.outer {
+  display: flex;
+  flex-direction: column;
+  height: 98vh;
+}
+
+.header {
+  flex-shrink: 0;
+}
+
+.inner {
+  flex: auto;
+  margin-top: 10px;
+  /* height: calc(100vh - 220px);
+  height:-webkit-calc(100vh - 220px);
+  height:-moz-calc(100vh - 220px); */
+}
+    </style>
+
+  </head>
+
+  <body>
+    <div class="outer">
+      <div class="header">
+        <h2>中国计算机学会推荐国际学术会议和期刊目录-2022（拟定） 可以点🌟嘛，谢谢～
+          <a href="https://github.com/izhx/ccf-rank"><img alt="GitHub Repo stars" src="https://img.shields.io/github/stars/izhx/ccf-rank?style=social"></a>
+        </h2>
+  
+        <div id="domain-selector">切换领域：
+          <label><input type="radio" name="domain" onchange="externalFilterChangedDomain('全部')" checked>全部</label>
+        </div>
+  
+        <div id="rank-selector" style="margin-top: 10px;">切换等级：
+          <label><input type="radio" name="rank" onchange="externalFilterChangedRank('全部')" checked>全部</label>
+          <label><input type="radio" name="rank" onchange="externalFilterChangedRank('A')">A</label>
+          <label><input type="radio" name="rank" onchange="externalFilterChangedRank('B')">B</label>
+          <label><input type="radio" name="rank" onchange="externalFilterChangedRank('C')">C</label>
+        </div>
+
+        <div id="kind-selector" style="margin-top: 10px;">切换类型：
+          <label><input type="radio" name="kind" onchange="externalFilterChangedKind('全部')" checked>全部</label>
+          <label><input type="radio" name="kind" onchange="externalFilterChangedKind('期刊')">期刊</label>
+          <label><input type="radio" name="kind" onchange="externalFilterChangedKind('会议')">会议</label>
+        </div>
+      </div>
+
+    <!-- The div that will host the grid. ag-theme-balham is the theme. -->
+    <div id="myGrid" class="ag-theme-balham inner"></div>
+
+    </div>
+
+
+<script type="text/javascript">
+  var selectedDomain = '全部';
+  var selectedRank = '全部';
+  var selectedKind = '全部';
+
+  // Generate radios
+  const domains = [
+    '计算机体系结构/并行与分布计算/存储系统',
+    '计算机网络',
+    '网络与信息安全',
+    '软件工程/系统软件/程序设计语言',
+    '数据库/数据挖掘/内容检索',
+    '计算机科学理论',
+    '计算机图形学与多媒体',
+    '人工智能',
+    '人机交互与普适计算',
+    '交叉/综合/新兴'
+  ]
+  const selector = document.getElementById('domain-selector');
+  domains.forEach((d) => {
+    var e = document.createElement('label');
+    e.innerHTML = '<input type="radio" name="domain" onchange="externalFilterChangedDomain(\'' + d + '\')">' + d;
+    selector.appendChild(e);
+  })
+
+  // Grid Options are properties passed to the grid
+  const gridOptions = {
+    // each entry here represents one column
+    columnDefs: [
+      { field: "domain", headerName: '领域', width: 256, resizable: false },
+      { field: "rank", headerName: '等级', width: 72, resizable: false },
+      { field: "kind", headerName: '类型', width: 88, resizable: false },
+      { field: "short", headerName: '简称', width: 128, resizable: false },
+      { field: "full", headerName: '全称' },
+      { field: 'press', headerName: '出版社', width: 128 },
+    ],
+
+    // default col def properties get applied to all columns
+    defaultColDef: {
+      sortable: true,
+      // make every column use 'text' filter by default
+      filter: 'agTextColumnFilter',
+      // enable floating filters by default
+      floatingFilter: true,
+      // make columns resizable
+      resizable: true,
+    },
+
+    rowSelection: 'multiple', // allow rows to be selected
+    animateRows: true, // have rows animate to new positions when sorted
+    // sideBar: true,
+    // enableRangeSelection: true,
+    enableCellTextSelection: true,
+    ensureDomOrder: true,
+
+    isExternalFilterPresent: isExternalFilterPresent,
+    doesExternalFilterPass: doesExternalFilterPass,
+
+    // example event handler
+    onCellClicked: params => {
+      // console.log('cell was clicked', params)
+    }
+  };
+
+  function isExternalFilterPresent() {
+    return selectedDomain != '全部' || selectedRank != '全部' || selectedKind != '全部';
+  }
+
+  function doesExternalFilterPass(node) {
+    var passDomain = true;
+    if (selectedDomain !== '全部' && selectedDomain !== node.data.domain){
+      passDomain = false;
+    }
+    var passRank = true;
+    if (selectedRank !== '全部' && selectedRank !== node.data.rank){
+      passRank = false;
+    }
+    var passKind = true;
+    if (selectedKind !== '全部' && selectedKind !== node.data.kind){
+      passKind = false;
+    }
+    return passDomain && passRank && passKind;
+  }
+
+  function externalFilterChangedDomain(newValue) {
+    selectedDomain = newValue;
+    gridOptions.api.onFilterChanged();
+  }
+
+  function externalFilterChangedRank(newValue) {
+    selectedRank = newValue;
+    gridOptions.api.onFilterChanged();
+  }
+
+  function externalFilterChangedKind(newValue) {
+    selectedKind = newValue;
+    gridOptions.api.onFilterChanged();
+  }
+
+  // read and set data
+  function read_csv(year, callback) {
+    Papa.parse("https://raw.githubusercontent.com/izhx/ccf-rank/main/data/" + year + ".csv", {
+      delimiter: ',',
+      header: true,
+      download: true,
+      complete: function(results) {
+        // load fetched data into grid
+        gridOptions.api.setRowData(results.data);
+      }
+    });
+  }
+
+  // setup the grid after the page has finished loading
+  document.addEventListener('DOMContentLoaded', function () {
+    // get div to host the grid
+    const eGridDiv = document.getElementById("myGrid");
+    // new grid instance, passing in the hosting DIV and Grid Options
+    new agGrid.Grid(eGridDiv, gridOptions);
+
+    read_csv('2022');
+  });
+
+</script>
+
+
+  </body>
+</html>
